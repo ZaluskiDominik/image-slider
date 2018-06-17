@@ -23,6 +23,7 @@ function ImgPiece(r, g, b, x, y)
 	this.x=x;
 	this.y=y;
 
+	//initialize radius, calculate increase of the radius with each animation step
 	this.initRadius=function()
 	{
 	    this.maxRadius=Math.random() * 50 + 50;
@@ -30,6 +31,7 @@ function ImgPiece(r, g, b, x, y)
 	    this.stepRadius=this.maxRadius * 2 / numFrames;
 	}
 
+	//initialize angle, calculate increase of the angle with each animation step
 	this.initAngle=function()
 	{
 	    this.stepAngle=3*Math.PI / numFrames;
@@ -40,18 +42,20 @@ function ImgPiece(r, g, b, x, y)
 	this.initAngle();
 	this.initRadius();
 	
+	//returns color in rgb format
 	this.getRgb=function()
 	{
 		return "rgb(" + this.color.red + "," + this.color.green + "," + this.color.blue + ")"; 		
 	}
 
-	//draw pixel on the screen
+	//draw piece on the screen
 	this.draw=function()
 	{
 		ctx.fillStyle=this.getRgb();
 		ctx.fillRect(this.x, this.y, pieceSize, pieceSize);
 	}
 
+	//grow or shrink radius
 	this.changeRadius=function()
 	{
 		this.radius+=this.stepRadius;
@@ -59,6 +63,7 @@ function ImgPiece(r, g, b, x, y)
 			this.stepRadius*=-1;
 	}
 
+	//change angle of elipsoide motion
 	this.move=function()
 	{
 		this.angle+=this.stepAngle;
@@ -66,6 +71,7 @@ function ImgPiece(r, g, b, x, y)
 		this.y=this.radius * Math.sin(this.angle) + y;
 	}
 
+	//next step of the animation
 	this.step=function()
 	{
 		this.changeRadius();
