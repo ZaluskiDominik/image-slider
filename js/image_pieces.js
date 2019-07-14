@@ -72,18 +72,27 @@ let imgPieces = {
     },
 
     //makes next step in rotate animation with all image pieces
-    move : function()
+    move : function(msDeltaTime)
     {
         this.pieces.forEach( (piece) => {
-            piece.rotateAdvance();
+            piece.rotateAdvance(msDeltaTime);
         });
     },
 
     //makes next step in disappear animation with all image pieces
-    disappear : function()
+    disappear : function(msDeltaTime)
     {
         this.pieces.forEach( (piece) => {
-            piece.disappearAdvance();
+            piece.disappearAdvance(msDeltaTime);
+        });
+    },
+
+    //sets all img pieces to their initial positions
+    resetPos : function()
+    {
+        this.pieces.forEach( (piece) => {
+            piece.radius = 0;
+            piece.calculatePos();
         });
     }
 };

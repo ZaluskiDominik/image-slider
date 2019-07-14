@@ -16,29 +16,9 @@ function ImgPiece(red, green, blue, xPos, yPos)
     //current angle of rotation around center pos
     this.angle = Math.random() * Math.PI;
 
-    //calculates increase factors for angle and radius with each frame
-    this.init = function()
-    {
-        this.initStepRadius();
-        this.initStepAngle()
-    }
-
-    //calculate increase of the radius with each animation step
-    this.initStepRadius = function()
-    {
-        this.stepRadius = this.maxRadius * 2 / slider.numFramesRotateAround;
-    }
-
-    //calculate increase factor for angle every new frame
-    this.initStepAngle = function()
-    {
-        //increase factor for angle every new frame
-        this.stepAngle = ImgPiece.numCirclesAround * Math.PI * 2
-            / slider.numFramesRotateAround;
-        //make if 50% change for negative value
-        if (Math.random() > 0.5)
-            this.stepAngle *= -1;
-    }
+    //1 for counter clockwise, -1 for clockwise
+    //make if 50% change for either one
+    this.rotationDirection = ( Math.random() > 0.5 ) ? 1 : -1;
     
     //returns color in rgba string
     this.getRgba = function()
@@ -54,26 +34,22 @@ function ImgPiece(red, green, blue, xPos, yPos)
         canvas.ctx.fillRect(this.pos.x, this.pos.y, ImgPiece.size, ImgPiece.size);
     }
 
-    //when stepRadius > 0 increases radius by stepRadius
-    //when stepRadius < 0 shrinks radius
-    this.makeNextStepRadius = function()
+    //increases or decreases radius proportional to msDeltaTime
+    this.makeNextStepRadius = function(msDeltaTime)
     {
-        //change radius by stepRaius factor
-        this.radius += this.stepRadius;
-
-        //if radius reached maxRadius change increse factor to negative value
-        //so that now radius will be shrinking
-        if (this.radius >= this.maxRadius)
-            this.stepRadius *= -1;
-    
-        //if animation is at end return to radius = 0
-        if (slider.frameCounter == slider.numFramesRotateAround)
-            this.radius = 0;
+        //change radius by fraction of 2 * maxRadius proportional to delta time and whole time of animation ratio
+        //if time the animation was run is greater that half of the whole time of rotate animation
+        //radius will be decreased, else increased
+        this.radius += msDeltaTime / slider.msPiecesRotateAroundTime * 2 * this.maxRadius
+            * Math.pow(-1, ( slider.msTimeCounter > slider.msPiecesRotateAroundTime / 2 ));
     }
 
-    this.makeNextStepAngle = function()
+    //increases or decreases angle(depends on this.rotationDirection) proportional to msDeltaTime
+    this.makeNextStepAngle = function(msDeltaTime)
     {
-        this.angle += this.stepAngle;
+        this.angle += msDeltaTime / slider.msPiecesRotateAroundTime
+            * ImgPiece.numCirclesAround * 2 * Math.PI
+            * this.rotationDirection;
     }
 
     //calculates current position of this img piece based on values of angle and radius
@@ -84,20 +60,18 @@ function ImgPiece(red, green, blue, xPos, yPos)
     }
 
     //next step of rotating around center point animation
-    this.rotateAdvance = function()
+    this.rotateAdvance = function(msDeltaTime)
     {
-        this.makeNextStepRadius();
-        this.makeNextStepAngle();
+        this.makeNextStepRadius(msDeltaTime);
+        this.makeNextStepAngle(msDeltaTime);
         this.calculatePos();
     }
 
     //next step of disappearing animation
-    this.disappearAdvance = function()
+    this.disappearAdvance = function(msDeltaTime)
     {
-        this.color.alpha -= 1.0 / slider.numFramesDisappear;
+        this.color.alpha -= msDeltaTime / slider.msPiecesDisappearTime;
     }
-
-    this.init();
 }
 
 //number of circles around center point that will be done while transisting between images
